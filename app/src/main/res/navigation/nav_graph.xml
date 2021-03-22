@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.alexey_freelancee.delivery.ui.splash_screen.SplashFragment"
+        android:label="SplashFragment" >
+        <action
+            android:id="@+id/action_splashFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_splashFragment_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.alexey_freelancee.delivery.ui.login.LoginFragment"
+        android:label="login_fragment"
+        tools:layout="@layout/login_fragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_registrationFragment"
+            app:destination="@id/registrationFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_loginFragment_to_mainScreenFragment2"
+            app:destination="@id/mainScreenFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/registrationFragment"
+        android:name="com.alexey_freelancee.delivery.ui.registration.RegistrationFragment"
+        android:label="registration_fragment"
+        tools:layout="@layout/registration_fragment" >
+        <action
+            android:id="@+id/action_registrationFragment_to_mainScreenFragment2"
+            app:destination="@id/mainScreenFragment"
+            app:popUpTo="@id/registrationFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainScreenFragment"
+        android:name="com.alexey_freelancee.delivery.ui.main_screen.MainScreenFragment"
+        android:label="main_screen_fragment"
+        tools:layout="@layout/main_screen_fragment" >
+        <action
+            android:id="@+id/action_mainScreenFragment_to_customerCreateOrderFragment"
+            app:destination="@id/customerCreateOrderFragment" />
+        <action
+            android:id="@+id/action_mainScreenFragment_to_managerCreateOrderFragment"
+            app:destination="@id/managerCreateOrderFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/customerCreateOrderFragment"
+        android:name="com.alexey_freelancee.delivery.ui.customer_create_order.CustomerCreateOrderFragment"
+        android:label="customer_create_order_fragment"
+        tools:layout="@layout/customer_create_order_fragment" >
+        <action
+            android:id="@+id/action_customerCreateOrderFragment_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/managerCreateOrderFragment"
+        android:name="com.alexey_freelancee.delivery.ui.manager_create_order.ManagerCreateOrderFragment"
+        android:label="manager_create_order_fragment"
+        tools:layout="@layout/manager_create_order_fragment" >
+        <action
+            android:id="@+id/action_managerCreateOrderFragment_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/orderInfo"
+        android:name="com.alexey_freelancee.delivery.ui.current_order.CurrentOrderFragment"
+        android:label="order_info_fragment"
+        tools:layout="@layout/current_order_fragment" /><action android:id="@+id/action_global_orderInfo" app:destination="@id/orderInfo"/>
+</navigation>

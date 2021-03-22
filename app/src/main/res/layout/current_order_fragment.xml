@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="viewmodel"
+            type="com.alexey_freelancee.delivery.ui.current_order.CurrentOrderViewModel" />
+    </data>
+    <RelativeLayout
+
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <androidx.viewpager.widget.ViewPager
+
+            android:id="@+id/currentOrderPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/currentOrderTabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/darkGreen"
+                app:tabIndicatorColor="@android:color/white"
+                app:tabIndicatorHeight="4dp"
+                app:tabSelectedTextColor="@color/white"
+                app:tabTextColor="@color/white" />
+        </androidx.viewpager.widget.ViewPager>
+
+
+    </RelativeLayout>
+</layout>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.manager_create_order.ManagerCreateOrderFragment">
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="viewmodel"
+            type="com.alexey_freelancee.delivery.ui.manager_create_order.ManagerCreateOrderViewModel" />
+    </data>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:background="@color/sea"
+        android:layout_margin="16dp"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:padding="8dp"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+
+
+                <FrameLayout
+                    android:visibility="@{viewmodel.estimateTime == null || viewmodel.estimateTime == 0.0 ? View.GONE: View.VISIBLE}"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@color/darkGreen"
+                    app:layout_constraintEnd_toEndOf="parent"
+
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <Spinner
+                        android:id="@+id/availableOrders"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:backgroundTint="@color/white"
+                        android:paddingStart="8dp"
+
+                        />
+                </FrameLayout>
+
+
+                <LinearLayout
+                    android:visibility="@{viewmodel.estimateTime == null || viewmodel.estimateTime == 0.0 ? View.GONE: View.VISIBLE}"
+                    android:background="@color/darkGreen"
+                    android:layout_marginTop="16dp"
+                    android:layout_width="match_parent"
+                    android:padding="8dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:textSize="20sp"
+                        android:text="@string/picked_orders"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:overScrollMode="never"
+                        tools:listitem="@layout/available_order_row"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        android:id="@+id/pickedOrders"/>
+                </LinearLayout>
+
+
+                <Button
+                    android:background="@color/darkGreen"
+                    android:layout_marginTop="16dp"
+                    android:layout_width="match_parent"
+                    android:onClick="@{viewmodel::createOrder}"
+                    android:layout_height="50dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:text="@string/manager_create_order"
+                    android:id="@+id/manager_create_order"/>
+
+
+            <FrameLayout
+                android:visibility="@{viewmodel.weight == null || viewmodel.weight == 0.0 ? View.GONE: View.VISIBLE}"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/darkGreen"
+                android:layout_marginTop="16dp"
+                android:padding="8dp">
+
+                <TextView
+                    tools:text="Test text"
+                    android:layout_gravity="center_vertical"
+                    app:weight="@{viewmodel.weight}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:visibility="@{viewmodel.estimateTime == null || viewmodel.estimateTime == 0.0 ? View.GONE: View.VISIBLE}"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/darkGreen"
+                android:layout_marginTop="16dp"
+                android:padding="8dp">
+
+                <TextView
+                    tools:text="Test text"
+                    android:layout_gravity="center_vertical"
+                    android:text="@{viewmodel.estimateTextTime}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"/>
+            </FrameLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</layout>

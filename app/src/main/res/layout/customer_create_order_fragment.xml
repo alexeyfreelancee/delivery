@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.alexey_freelancee.delivery.ui.customer_create_order.CustomerCreateOrderViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            tools:context=".ui.customer_create_order.CustomerCreateOrderFragment">
+
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="32dp"
+                android:background="@color/darkGreen"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <Spinner
+                    android:id="@+id/storageAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="@color/white"
+                    android:paddingStart="8dp"
+
+                    />
+            </FrameLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/darkGreen"
+                android:onClick="@{viewmodel::showDatePicker}">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:text="@{viewmodel.arriveTime == 0 || viewmodel.arriveTime == null ? @string/order_date : viewmodel.dateText}"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/white"
+                    android:textSize="20dp"
+                    tools:text="Дата поставки товара" />
+            </RelativeLayout>
+
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:digits="0123456789.."
+                android:background="@color/darkGreen"
+                android:hint="@string/weight"
+                android:paddingStart="8dp"
+                android:singleLine="true"
+                android:text="@={viewmodel.weight}"
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_white" />
+
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/darkGreen"
+                android:hint="@string/name"
+                android:paddingStart="8dp"
+                android:singleLine="true"
+                android:text="@={viewmodel.customerName}"
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_white" />
+
+            <EditText
+                android:inputType="phone"
+                android:digits="+0123456789"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/darkGreen"
+                android:hint="@string/phone_number"
+                android:paddingStart="8dp"
+                android:singleLine="true"
+                android:text="@={viewmodel.customerPhone}"
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_white" />
+
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/darkGreen"
+                android:gravity="top"
+                android:hint="@string/comment"
+                android:inputType="textMultiLine"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:text="@={viewmodel.comment}"
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_white" />
+
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:onClick="@{viewmodel::createOrder}"
+                android:layout_marginTop="16dp"
+                android:background="@color/darkGreen"
+                android:text="@string/create_order"
+                android:textAllCaps="false"
+                android:textColor="@color/white" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</layout>

@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "1058130438161",
+    "firebase_url": "https://app-download-two.firebaseio.com",
+    "project_id": "app-download-two",
+    "storage_bucket": "app-download-two.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058130438161:android:eb0d1c9a42f57f2e15a9b0",
+        "android_client_info": {
+          "package_name": "com.abc.wqcasll.recorder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1058130438161-58l464rsi7ff9nutt033sm2igv008hil.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAltyADh6gqvDusPfk5e8fwHkwH-V1iUUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1058130438161-58l464rsi7ff9nutt033sm2igv008hil.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058130438161:android:e8e7b44379e8cedb15a9b0",
+        "android_client_info": {
+          "package_name": "com.alexey_freelancee.delivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1058130438161-58l464rsi7ff9nutt033sm2igv008hil.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAltyADh6gqvDusPfk5e8fwHkwH-V1iUUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1058130438161-58l464rsi7ff9nutt033sm2igv008hil.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

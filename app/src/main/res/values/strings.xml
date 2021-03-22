@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">Delivery</string>
+    <string name="login">Логин</string>
+
+    <string name="log_in">Войти</string>
+    <string name="email">Email</string>
+    <string name="pass">Пароль</string>
+    <string name="fullName">ФИО ответственного лица</string>
+    <string name="phone">Телефон</string>
+    <string-array name="user_type">
+        <item>Заказчик</item>
+        <item>Менеджер</item>
+        <item>Поставщик</item>
+    </string-array>
+    <string-array name="order_status">
+        <item>Прибыл</item>
+        <item>В пути</item>
+        <item>Отгружен</item>
+    </string-array>
+
+    <string-array name="storage_addresses">
+        <item>Восстания, 100 к8100, Московский район, Казань</item>
+        <item>Тэцевская, 191, Московский район, Казань</item>
+        <item>Ганенкова, 55 к3, Димитровград, Ульяновская область</item>
+        <item>Магистральная, 4, Приволжский район, Казань</item>
+        <item>Советская, 271, с. Столбище, Лаишевский район, Республика Татарстан</item>
+        <item>Механиков, 2, пгт Смышляевка, Волжский район, Самарская область</item>
+        <item>Пойма, 19Б, Ленинский район, Ижевск</item>
+        <item>Техснабовская, 5, Нефтекамск, Республика Башкортостан</item>
+        <item>Профсоюзная, 16 к2, Восточный район, Стерлитамак, Республика Башкортостан</item>
+        <item>Совхозная, 15л, Северная поляна, Октябрьский район, Пенза</item>
+        <item>Старосармановская, 29, Комсомольский район, Набережные Челны</item>
+        <item>Алексеевское Шоссе, 5, Кузнецк, Пензенская область</item>
+        <item>Промышленная 4, 16а ст1, Нижнекамск</item>
+        <item>Промышленная улица, 40а, Восточный район, Новочебоксарск, Чувашская Республика — Чувашия</item>
+        <item>Канашское шоссе, 7/1 к7, Чебоксары</item>
+    </string-array>
+
+    <string name="customer">Заказчик</string>
+    <string name="order_date">Дата поставки товара</string>
+    <string name="weight">Вес</string>
+    <string name="name">ФИО ответственного лица</string>
+    <string name="phone_number">Телефон ответственного лица</string>
+    <string name="comment">Комментарий</string>
+    <string name="create_order">Создать заказ</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="picked_orders">Выбранные заказы</string>
+    <string name="manager_create_order">Проложить маршрут</string>
+</resources>

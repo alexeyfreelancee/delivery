@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="dataLoading"
+            type="Boolean" />
+        <variable
+            name="order"
+            type="com.alexey_freelancee.delivery.data.models.ManagerOrder" />
+    </data>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_margin="16dp"
+        android:background="@color/sea"
+
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:visibility="@{dataLoading ? View.GONE: View.VISIBLE}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:id="@+id/subOrders"/>
+
+
+        <LinearLayout
+            android:visibility="@{dataLoading ? View.GONE: View.VISIBLE}"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_marginStart="8dp"
+                android:text="@{order.status}"
+                android:layout_width="0dp"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                app:weight="@{order.weight}"
+                android:layout_width="0dp"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:layout_marginEnd="8dp"
+                app:date="@{order.estimateTime}"
+                android:layout_width="0dp"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>
