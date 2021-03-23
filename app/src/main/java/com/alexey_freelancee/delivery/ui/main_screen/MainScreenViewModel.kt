@@ -34,11 +34,11 @@ class MainScreenViewModel(
     val supplierOrdersFresh = MutableLiveData<List<ManagerOrder>>()
     val supplierOrdersHistory = MutableLiveData<List<ManagerOrder>>()
 
-    val updating = MutableLiveData<Boolean>()
+
     val dataLoading = MutableLiveData<Boolean>()
     val userType = MutableLiveData<String>()
 
-    private val myCalendar = Calendar.getInstance()
+    private var myCalendar = Calendar.getInstance()
     val toast = MutableLiveData<Event<String>>()
     val createManagerOrder = MutableLiveData<Event<Bundle>>()
 
@@ -127,6 +127,7 @@ class MainScreenViewModel(
                     if(resultList.isEmpty()){
                         toast.postValue(Event("Нет доступных заказов"))
                     }else{
+                        myCalendar = Calendar.getInstance()
                         createManagerOrder.postValue(Event(bundle))
                     }
 

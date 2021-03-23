@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.room.Room
 import com.alexey_freelancee.delivery.data.Repository
 import com.alexey_freelancee.delivery.data.database.AppDatabase
+import com.alexey_freelancee.delivery.data.network.RetrofitClient
 import com.alexey_freelancee.delivery.ui.customer_create_order.CustomerCreateOrderViewModel
 import com.alexey_freelancee.delivery.ui.login.LoginViewModel
 import com.alexey_freelancee.delivery.ui.main_screen.MainScreenViewModel
@@ -20,6 +21,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import kotlin.math.sign
 
 class App : Application() {
 
@@ -41,12 +43,13 @@ val appModule = module {
     }
     single{ ContextCompat.getSystemService(androidContext(), LocationManager::class.java) as LocationManager }
     single { SharedPrefsUtil(androidContext()) }
-    single { Repository(get(), get(),get()) }
+    single { RetrofitClient }
+    single { Repository(get(), get(),get(),get()) }
     viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get()) }
     viewModel { RegistrationViewModel(get()) }
     viewModel { MainScreenViewModel(get()) }
     viewModel { CustomerCreateOrderViewModel(get())}
     viewModel { ManagerCreateOrderViewModel(get()) }
-    viewModel { CurrentOrderViewModel(get()) }
+    viewModel { CurrentOrderViewModel(get(),androidContext()) }
 }

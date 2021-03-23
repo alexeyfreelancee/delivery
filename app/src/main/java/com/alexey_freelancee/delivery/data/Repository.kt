@@ -1,11 +1,15 @@
 package com.alexey_freelancee.delivery.data
 
+import com.alexey_freelancee.delivery.data.models.route.RouteResponse
 import android.annotation.SuppressLint
+import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import com.alexey_freelancee.delivery.data.database.AppDatabase
 import com.alexey_freelancee.delivery.data.models.ManagerOrder
 import com.alexey_freelancee.delivery.data.models.Order
 import com.alexey_freelancee.delivery.data.models.User
+import com.alexey_freelancee.delivery.data.network.RetrofitClient
 import com.alexey_freelancee.delivery.utils.SharedPrefsUtil
 import com.alexey_freelancee.delivery.utils.isOnline
 import com.alexey_freelancee.delivery.utils.log
@@ -18,72 +22,49 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class Repository(
     private val prefs: SharedPrefsUtil,
     private val db: AppDatabase,
-    private val locationManager: LocationManager
+    private val locationManager: LocationManager,
+    private val routing:RetrofitClient
 ) {
-
+    suspend fun loadRoute(current:LatLng, destination:LatLng) : RouteResponse {
+        return withContext(CoroutineScope(Dispatchers.IO).coroutineContext){
+            routing.api.loadRoute(
+                curLat =  current.latitude,
+                curLong = current.longitude,
+                destLat = destination.latitude,
+                destLong = destination.longitude
+            )
+        }
+    }
     fun checkLogin() = prefs.getUserId() != null
 
     fun loadUid() :String? = prefs.getUserId()
 
     fun setUserId(uid: String) = prefs.setUserId(uid)
 
-     suspend fun requestDirection(requestedUrl: String): String? {
-        return withContext(CoroutineScope(Dispatchers.IO).coroutineContext){
-            var responseString = ""
-            var inputStream: InputStream? = null
-            var httpURLConnection: HttpURLConnection? = null
-            try {
-                val url = URL(requestedUrl)
-                httpURLConnection = url.openConnection() as HttpURLConnection
-                httpURLConnection.connect()
-                inputStream = httpURLConnection.getInputStream()
-                val reader = InputStreamReader(inputStream)
-                val bufferedReader = BufferedReader(reader)
-                val stringBuffer = StringBuffer()
-                var line: String? = ""
-                while (bufferedReader.readLine().also { line = it } != null) {
-                    stringBuffer.append(line)
-                }
-                responseString = stringBuffer.toString()
-                bufferedReader.close()
-                reader.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-            httpURLConnection?.disconnect()
-             responseString
-        }
-
-    }
     @SuppressLint("MissingPermission")
     suspend fun loadCurrentDestination():LatLng{
         return suspendCoroutine { continuation ->
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 5000L, 0f
-            ) { location ->
-                continuation.resume(LatLng(location.latitude, location.longitude))
 
-            }
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 5000L, 0f, object:LocationListener{
+
+                    override fun onLocationChanged(location: Location) {
+                        continuation.resume(
+                            LatLng(
+                                location.latitude,
+                                location.longitude
+                            )
+                        )
+                        locationManager.removeUpdates(this)
+                    }
+
+                })
         }
     }
     suspend fun createManagerOrder(order: ManagerOrder):Boolean{

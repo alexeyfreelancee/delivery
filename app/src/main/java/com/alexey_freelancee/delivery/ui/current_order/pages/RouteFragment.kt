@@ -35,7 +35,8 @@ class RouteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.sortedDestinations.observe(viewLifecycleOwner,{
-            val map = (requireActivity() as MainActivity).supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+
+            val map = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
             map?.getMapAsync(viewModel)
 
         })

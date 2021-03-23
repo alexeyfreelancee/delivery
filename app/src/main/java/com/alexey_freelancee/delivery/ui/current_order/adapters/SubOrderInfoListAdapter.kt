@@ -15,6 +15,10 @@ import com.alexey_freelancee.delivery.utils.STATUS_COMPLETED
 
 import com.alexey_freelancee.delivery.utils.STATUS_PACKED
 import com.alexey_freelancee.delivery.utils.STATUS_PROCESSING
+import com.alexey_freelancee.delivery.utils.isOnline
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SubOrderInfoListAdapter(private val updateStatus: (createTime:Long,status:String) -> Unit) : RecyclerView.Adapter<SubOrderInfoListAdapter.SubOrderInfoViewHolder>() {
     private val items = ArrayList<Order>()
@@ -43,6 +47,10 @@ class SubOrderInfoListAdapter(private val updateStatus: (createTime:Long,status:
     }
 
     private fun setupSubOrderStatus(spinner: Spinner, order: Order){
+        CoroutineScope(Dispatchers.Main).launch {
+            spinner.isEnabled = isOnline()
+        }
+
         ArrayAdapter.createFromResource(
             spinner.context,
             R.array.order_status,
