@@ -44,7 +44,7 @@ val appModule = module {
     single{ ContextCompat.getSystemService(androidContext(), LocationManager::class.java) as LocationManager }
     single { SharedPrefsUtil(androidContext()) }
     single { RetrofitClient }
-    single { Repository(get(), get(),get(),get()) }
+    single { Repository(get(), get(),get()) }
     viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get()) }
     viewModel { RegistrationViewModel(get()) }

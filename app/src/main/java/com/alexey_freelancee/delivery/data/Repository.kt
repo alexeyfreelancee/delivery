@@ -28,7 +28,6 @@ import kotlin.coroutines.suspendCoroutine
 class Repository(
     private val prefs: SharedPrefsUtil,
     private val db: AppDatabase,
-    private val locationManager: LocationManager,
     private val routing:RetrofitClient
 ) {
     suspend fun loadRoute(current:LatLng, destination:LatLng) : RouteResponse {
@@ -47,26 +46,7 @@ class Repository(
 
     fun setUserId(uid: String) = prefs.setUserId(uid)
 
-    @SuppressLint("MissingPermission")
-    suspend fun loadCurrentDestination():LatLng{
-        return suspendCoroutine { continuation ->
 
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 5000L, 0f, object:LocationListener{
-
-                    override fun onLocationChanged(location: Location) {
-                        continuation.resume(
-                            LatLng(
-                                location.latitude,
-                                location.longitude
-                            )
-                        )
-                        locationManager.removeUpdates(this)
-                    }
-
-                })
-        }
-    }
     suspend fun createManagerOrder(order: ManagerOrder):Boolean{
         return suspendCoroutine { continuation ->
             FirebaseDatabase.getInstance()

@@ -40,7 +40,7 @@ class RouteFragment : Fragment() {
             map?.getMapAsync(viewModel)
 
         })
-        viewModel.loadData()
+        viewModel.loadData(false)
     }
 
 

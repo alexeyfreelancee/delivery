@@ -56,7 +56,7 @@ class OrderInfoFragment : Fragment() {
             log("sub orders = ${it.size}")
             adapter?.updateList(it)
         })
-        viewModel.loadData()
+        viewModel.loadData(true)
     }
 
     private fun setupSubOrderStatus(spinner: Spinner, status: String) {
