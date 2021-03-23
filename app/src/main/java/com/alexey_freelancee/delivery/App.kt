@@ -1,6 +1,10 @@
 package com.alexey_freelancee.delivery
 
 import android.app.Application
+import android.content.Context
+import android.location.Location
+import android.location.LocationManager
+import androidx.core.content.ContextCompat
 import androidx.room.Room
 import com.alexey_freelancee.delivery.data.Repository
 import com.alexey_freelancee.delivery.data.database.AppDatabase
@@ -35,8 +39,9 @@ val appModule = module {
             .fallbackToDestructiveMigration()
             .build()
     }
+    single{ ContextCompat.getSystemService(androidContext(), LocationManager::class.java) as LocationManager }
     single { SharedPrefsUtil(androidContext()) }
-    single { Repository(get(), get()) }
+    single { Repository(get(), get(),get()) }
     viewModel { SplashViewModel(get()) }
     viewModel { LoginViewModel(get()) }
     viewModel { RegistrationViewModel(get()) }

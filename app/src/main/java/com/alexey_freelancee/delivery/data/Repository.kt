@@ -1,5 +1,7 @@
 package com.alexey_freelancee.delivery.data
 
+import android.annotation.SuppressLint
+import android.location.LocationManager
 import com.alexey_freelancee.delivery.data.database.AppDatabase
 import com.alexey_freelancee.delivery.data.models.ManagerOrder
 import com.alexey_freelancee.delivery.data.models.Order
@@ -7,17 +9,28 @@ import com.alexey_freelancee.delivery.data.models.User
 import com.alexey_freelancee.delivery.utils.SharedPrefsUtil
 import com.alexey_freelancee.delivery.utils.isOnline
 import com.alexey_freelancee.delivery.utils.log
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class Repository(
     private val prefs: SharedPrefsUtil,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val locationManager: LocationManager
 ) {
 
     fun checkLogin() = prefs.getUserId() != null
@@ -26,7 +39,54 @@ class Repository(
 
     fun setUserId(uid: String) = prefs.setUserId(uid)
 
-    suspend fun createManagerOrder(order:ManagerOrder):Boolean{
+     suspend fun requestDirection(requestedUrl: String): String? {
+        return withContext(CoroutineScope(Dispatchers.IO).coroutineContext){
+            var responseString = ""
+            var inputStream: InputStream? = null
+            var httpURLConnection: HttpURLConnection? = null
+            try {
+                val url = URL(requestedUrl)
+                httpURLConnection = url.openConnection() as HttpURLConnection
+                httpURLConnection.connect()
+                inputStream = httpURLConnection.getInputStream()
+                val reader = InputStreamReader(inputStream)
+                val bufferedReader = BufferedReader(reader)
+                val stringBuffer = StringBuffer()
+                var line: String? = ""
+                while (bufferedReader.readLine().also { line = it } != null) {
+                    stringBuffer.append(line)
+                }
+                responseString = stringBuffer.toString()
+                bufferedReader.close()
+                reader.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+            httpURLConnection?.disconnect()
+             responseString
+        }
+
+    }
+    @SuppressLint("MissingPermission")
+    suspend fun loadCurrentDestination():LatLng{
+        return suspendCoroutine { continuation ->
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 5000L, 0f
+            ) { location ->
+                continuation.resume(LatLng(location.latitude, location.longitude))
+
+            }
+        }
+    }
+    suspend fun createManagerOrder(order: ManagerOrder):Boolean{
         return suspendCoroutine { continuation ->
             FirebaseDatabase.getInstance()
                 .getReference("manager_orders")
@@ -100,7 +160,7 @@ class Repository(
 
     }
 
-    suspend fun loadOrderByTime(createTime:Long) : Order?{
+    suspend fun loadOrderByTime(createTime: Long) : Order?{
         return loadOrders().find {it.createTime == createTime}
     }
     suspend fun loadUserByEmail(email: String?): User? {
@@ -126,21 +186,22 @@ class Repository(
     }
 
     private suspend fun loadManagerOrdersFirebase():List<ManagerOrder>?{
-        return suspendCoroutine{continuation ->
-            FirebaseDatabase.getInstance().getReference("manager_orders").addListenerForSingleValueEvent(object:ValueEventListener{
-                override fun onDataChange(snapshot: DataSnapshot) {
-                   val resultList = ArrayList<ManagerOrder>()
-                    for(order in snapshot.children){
-                        resultList.add(order.getValue(ManagerOrder::class.java)!!)
+        return suspendCoroutine{ continuation ->
+            FirebaseDatabase.getInstance().getReference("manager_orders").addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val resultList = ArrayList<ManagerOrder>()
+                        for (order in snapshot.children) {
+                            resultList.add(order.getValue(ManagerOrder::class.java)!!)
+                        }
+                        continuation.resume(resultList)
                     }
-                    continuation.resume(resultList)
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                   continuation.resume(null)
-                }
+                    override fun onCancelled(error: DatabaseError) {
+                        continuation.resume(null)
+                    }
 
-            })
+                })
         }
     }
     suspend fun loadOrders():List<Order>{
@@ -156,7 +217,7 @@ class Repository(
     private suspend fun loadOrdersFirebase() :List<Order>?{
         return suspendCoroutine { continuation ->
             FirebaseDatabase.getInstance().getReference("orders")
-                .addListenerForSingleValueEvent(object:ValueEventListener{
+                .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val resultList = ArrayList<Order>()
                         for (order in snapshot.children) {
@@ -166,7 +227,7 @@ class Repository(
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                     continuation.resume(null)
+                        continuation.resume(null)
                     }
 
                 })

@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.alexey_freelancee.delivery">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
 
         android:name=".App"
@@ -12,9 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Delivery">
 
+
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBiNrBvBTUoc8NJKGqiD0calOlTH9io2So" />
+            android:value="AIzaSyCORBh2rreRHj_gOtd6d7BraNw2_uwqzVE" />
         <activity android:name=".ui.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
