@@ -89,37 +89,16 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
             isCostAllowed = false
         }, true)
         log(provider)
-        locationManager.requestLocationUpdates(
-            provider ?: LocationManager.GPS_PROVIDER, 0, 0f, object : LocationListener {
-                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                    log("status changed = $status")
-                }
-
-                override fun onProviderEnabled(provider: String) {
-                    log("provider enabled")
-                }
-
-                override fun onProviderDisabled(provider: String) {
-                    log("provider disabled")
-                }
-
-                override fun onLocationChanged(location: Location) {
-                    viewModelScope.launch {
-                        log("received location")
-                        val managerOrder = loadManagerOrder(createTime)
-                        if (managerOrder != null) {
-                            val subOrdersNew = loadSubOrders(managerOrder.subOrders)
-                            current = LatLng(location.latitude, location.longitude)
-                            val sortedDestinationsNew = loadSortedDestinations(subOrdersNew)
-                            sortedDestinations.postValue(sortedDestinationsNew)
-                        }
-                    }
-                    locationManager.removeUpdates(this)
-
-                }
-
-            })
-        log("requested location")
+        val location = locationManager.getLastKnownLocation(provider ?: LocationManager.GPS_PROVIDER)
+        if(location!=null){
+            val managerOrder = loadManagerOrder(createTime)
+            if (managerOrder != null) {
+                val subOrdersNew = loadSubOrders(managerOrder.subOrders)
+                current = LatLng(location.latitude, location.longitude)
+                val sortedDestinationsNew = loadSortedDestinations(subOrdersNew)
+                sortedDestinations.postValue(sortedDestinationsNew)
+            }
+        }
     }
 
 

@@ -56,7 +56,10 @@ class ManagerCreateOrderFragment : Fragment() {
             requireArguments().getString("estimatedTimeText")!!
         )
         viewModel.toast.observe(viewLifecycleOwner, {
-            requireContext().toast(it.peekContent())
+            if(!it.hasBeenHandled){
+                requireContext().toast(it.peekContent())
+            }
+
         })
 
         setupSubOrders(view)
