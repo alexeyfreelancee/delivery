@@ -21,12 +21,13 @@ class RegistrationViewModel(private val repository: Repository) : ViewModel() {
     val password = MutableLiveData<String>()
 
 
-    val toast = MutableLiveData<Event<String>>()
-    val doRegistration = MutableLiveData<Event<Boolean>>()
+
+    val doRegistration = MutableLiveData<Event<String>>()
 
     fun doRegistration(view:View){
         CoroutineScope(Dispatchers.IO).launch {
             if(checkInput()){
+                log("check input success")
                 val user = User(
                     uid = UUID.randomUUID().toString(),
                     email = email.value!!,
@@ -34,13 +35,13 @@ class RegistrationViewModel(private val repository: Repository) : ViewModel() {
                     fullName = name.value!!,
                     type = type.value!!
                     )
-                if(repository.doRegister(user, password.value!!)){
+                val result = repository.doRegister(user, password.value!!)
+                if(result == "ok"){
                     repository.setUserId(user.uid)
-                    doRegistration.postValue(Event(true))
                 }
-
+                doRegistration.postValue(Event(result))
             }
-            doRegistration.postValue(Event(false))
+
         }
     }
 
@@ -48,27 +49,27 @@ class RegistrationViewModel(private val repository: Repository) : ViewModel() {
     private fun checkInput() :Boolean{
 
 
-        val validEmail = !TextUtils.isEmpty(email.value) && android.util.Patterns.EMAIL_ADDRESS.matcher(email.value!!).matches()
+        val validEmail = !email.value.isNullOrEmpty()
         if(!validEmail){
-            toast.postValue(Event("Введите корректный email"))
+            doRegistration.postValue(Event("Введите корректный email"))
             return false
         }
 
         val validPhone = !phone.value.isNullOrEmpty()
         if(!validPhone){
-            toast.postValue(Event("Введите номер телефона"))
+            doRegistration.postValue(Event("Введите номер телефона"))
             return false
         }
 
         val validName = !name.value.isNullOrBlank() && name.value!!.split(" ").size > 2
         if(!validName){
-            toast.postValue(Event("Введите ФИО"))
+            doRegistration.postValue(Event("Введите ФИО"))
             return false
         }
 
-        val validPassword = !password.value.isNullOrBlank() && password.value!!.length > 6
+        val validPassword = !password.value.isNullOrBlank() && password.value!!.length >= 6
         if(!validPassword){
-            toast.postValue(Event("Введите пароль длиной минимум в 6 символов"))
+            doRegistration.postValue(Event("Введите пароль длиной минимум в 6 символов"))
             return false
         }
 

@@ -42,19 +42,17 @@ class RegistrationFragment : Fragment() {
         setupUserType(view)
         viewModel.doRegistration.observe(viewLifecycleOwner, {
             if(!it.hasBeenHandled){
-                if(it.peekContent()){
+                val result = it.peekContent()
+                if(result == "ok"){
+
                     findNavController().navigate(R.id.action_registrationFragment_to_mainScreenFragment2)
                 }else{
-                    requireContext().toast("Ошибка")
+                    requireContext().toast(result)
                 }
             }
         })
 
-        viewModel.toast.observe(viewLifecycleOwner,{
-            if(!it.hasBeenHandled){
-                requireContext().toast(it.peekContent())
-            }
-        })
+
     }
 
     private fun setupUserType(view:View){

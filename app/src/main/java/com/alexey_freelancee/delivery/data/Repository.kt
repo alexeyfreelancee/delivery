@@ -75,7 +75,7 @@ class Repository(
                 }
         }
     }
-    suspend fun doRegister(user: User, password: String): Boolean {
+    suspend fun doRegister(user: User, password: String): String {
         return suspendCoroutine { continuation ->
 
             FirebaseAuth
@@ -87,17 +87,18 @@ class Repository(
                         .getReference("users")
                         .child(user.uid).setValue(user)
                         .addOnSuccessListener {
-                            continuation.resume(true)
+                            log("repository success")
+                            continuation.resume("ok")
                         }
                         .addOnFailureListener {
-                            log(it.message)
-                            continuation.resume(false)
+
+                            continuation.resume(it.message.toString())
                         }
 
                 }
                 .addOnFailureListener {
-                    log(it.message)
-                    continuation.resume(false)
+
+                    continuation.resume(it.message.toString())
                 }
         }
     }
