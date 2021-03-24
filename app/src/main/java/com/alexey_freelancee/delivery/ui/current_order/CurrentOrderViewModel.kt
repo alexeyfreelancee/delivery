@@ -1,25 +1,18 @@
 package com.alexey_freelancee.delivery.ui.current_order
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Criteria
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.alexey_freelancee.delivery.R
 import com.alexey_freelancee.delivery.data.Repository
 import com.alexey_freelancee.delivery.data.models.ManagerOrder
 import com.alexey_freelancee.delivery.data.models.Order
+import com.alexey_freelancee.delivery.utils.Event
 import com.alexey_freelancee.delivery.utils.SortPlaces
 import com.alexey_freelancee.delivery.utils.isOnline
 import com.alexey_freelancee.delivery.utils.log
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
@@ -30,12 +23,13 @@ import kotlinx.coroutines.withContext
 import java.util.*
 
 
-class CurrentOrderViewModel(private val repository: Repository, private val context: Context) : ViewModel(), OnMapReadyCallback {
-    val order = MutableLiveData<ManagerOrder>()
+class CurrentOrderViewModel(private val repository: Repository, private val context: Context) : ViewModel() {
+    val managerOrder = MutableLiveData<ManagerOrder>()
     val subOrders = MutableLiveData<List<Order>>()
     val dataLoading = MutableLiveData<Boolean>()
-    val sortedDestinations = MutableLiveData<List<LatLng>>()
-    private var current : LatLng? = null
+    val toast = MutableLiveData<Event<String>>()
+    private var currentDestination : LatLng? = null
+     var map:GoogleMap? = null
 
     private val storageCoordinates = hashMapOf(
         "Восстания, 100 к8100, Московский район, Казань" to "55.833410,49.050410",
@@ -55,19 +49,16 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
         "Канашское шоссе, 7/1 к7, Чебоксары" to "56.065840,47.270690",
     )
 
-    fun loadData(fromOrderInfo: Boolean) = viewModelScope.launch {
+
+    suspend fun loadData(displayOrderInfo: Boolean)  {
         dataLoading.postValue(true)
-        val managerOrder = loadManagerOrder(createTime)
+        val managerOrder = loadManagerOrder()
         if (managerOrder != null) {
-            order.postValue(managerOrder!!)
+            this.managerOrder.postValue(managerOrder!!)
             val subOrdersNew = loadSubOrders(managerOrder.subOrders)
             subOrders.postValue(subOrdersNew)
-            if(!fromOrderInfo){
-                if(isOnline()){
-                    loadCurrentDestination()
-                } else{
-                    dataLoading.postValue(false)
-                }
+            if(!displayOrderInfo){
+                loadMap(subOrdersNew)
             }else{
                 dataLoading.postValue(false)
             }
@@ -76,62 +67,39 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private suspend fun loadCurrentDestination(){
-        val locationManager: LocationManager = context.getSystemService(LocationManager::class.java)
-        val provider = locationManager.getBestProvider(Criteria().apply {
-
-            powerRequirement = Criteria.POWER_LOW
-            accuracy = Criteria.ACCURACY_FINE
-            isSpeedRequired = true
-            isAltitudeRequired = false
-            isBearingRequired = false
-            isCostAllowed = false
-        }, true)
-        log(provider)
-        val location = locationManager.getLastKnownLocation(provider ?: LocationManager.GPS_PROVIDER)
-        if(location!=null){
-            val managerOrder = loadManagerOrder(createTime)
-            if (managerOrder != null) {
-                val subOrdersNew = loadSubOrders(managerOrder.subOrders)
-                current = LatLng(location.latitude, location.longitude)
+    private suspend fun loadMap(subOrdersNew:List<Order>){
+        if(isOnline()){
+            log("loading current destination")
+            val location = repository.loadCurrentDestination(context)
+            if(location.latitude == 0.0 && location.longitude == 0.0){
+                toast.postValue(Event("Пожалуйста, включите GPS"))
+                dataLoading.postValue(false)
+                return
+            } else{
+                currentDestination = location
                 val sortedDestinationsNew = loadSortedDestinations(subOrdersNew)
-                sortedDestinations.postValue(sortedDestinationsNew)
+                log("drawing route")
+                drawPolyline(sortedDestinationsNew)
+            }
+
+        }
+        dataLoading.postValue(false)
+    }
+    private suspend fun drawPolyline(destinations:List<LatLng>){
+        val currentPolyline = getPolyline(currentDestination!!, destinations[0])
+        map?.addMarker(MarkerOptions().position(currentDestination!!))
+        map?.addPolyline(currentPolyline)
+        for ((i, item) in destinations.withIndex()) {
+            map?.addMarker(MarkerOptions().position(item))
+            try {
+                val polyline= getPolyline(item, destinations[i + 1])
+                map?.addPolyline(polyline)
+            }catch (ex: IndexOutOfBoundsException){
+
             }
         }
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentDestination, 10f))
     }
-
-
-    override fun onMapReady(map: GoogleMap) {
-        CoroutineScope(Dispatchers.IO).launch {
-            log("on map ready")
-            val destinations = ArrayList(sortedDestinations.value ?: emptyList())
-            withContext(Dispatchers.Main) {
-                val currentPolyline = getPolyline(current!!, destinations[0])
-                map.addMarker(MarkerOptions().position(current!!))
-                map.addPolyline(currentPolyline)
-                for ((i, item) in destinations.withIndex()) {
-
-                    map.addMarker(MarkerOptions().position(item))
-                    try {
-                        val polyline= getPolyline(item, destinations[i + 1])
-                        map.addPolyline(polyline)
-                    }catch (ex: IndexOutOfBoundsException){
-
-                    }
-                }
-                log("added polyline")
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 10f))
-
-            }
-            dataLoading.postValue(false)
-        }
-
-    }
-
-
-
-
 
 
     private suspend fun loadSortedDestinations(orders: List<Order>): List<LatLng> =
@@ -151,12 +119,12 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
 
             }
 
-            Collections.sort(destinations, SortPlaces(current))
+            Collections.sort(destinations, SortPlaces(currentDestination))
             destinations
         }
 
 
-    private suspend fun loadManagerOrder(createTime: Long): ManagerOrder? =
+    private suspend fun loadManagerOrder(): ManagerOrder? =
         withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
             repository.loadManagerOrderByTime(com.alexey_freelancee.delivery.ui.current_order.createTime)
         }
@@ -173,7 +141,7 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
 
     fun updateOrderStatus(status: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            val orderTemp = order.value?.apply {
+            val orderTemp = managerOrder.value?.apply {
                 this.status = status
             }
             if (orderTemp != null) repository.createManagerOrder(orderTemp)

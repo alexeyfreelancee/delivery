@@ -49,14 +49,17 @@ class OrderInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<RecyclerView>(R.id.subOrders).adapter = adapter
 
-        viewModel.order.observe(viewLifecycleOwner, {
+        viewModel.managerOrder.observe(viewLifecycleOwner, {
             setupSubOrderStatus(view.findViewById(R.id.orderStatus), it.status)
         })
         viewModel.subOrders.observe(viewLifecycleOwner, {
             log("sub orders = ${it.size}")
             adapter?.updateList(it)
         })
-        viewModel.loadData(true)
+        CoroutineScope(Dispatchers.Main).launch {
+            viewModel.loadData(true)
+        }
+
     }
 
     private fun setupSubOrderStatus(spinner: Spinner, status: String) {
