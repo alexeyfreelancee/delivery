@@ -1,20 +1,13 @@
 package com.alexey_freelancee.delivery.data
 
 import com.alexey_freelancee.delivery.data.models.route.RouteResponse
-import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import androidx.lifecycle.viewModelScope
 import com.alexey_freelancee.delivery.data.database.AppDatabase
 import com.alexey_freelancee.delivery.data.models.ManagerOrder
 import com.alexey_freelancee.delivery.data.models.Order
 import com.alexey_freelancee.delivery.data.models.User
 import com.alexey_freelancee.delivery.data.network.RetrofitClient
-import com.alexey_freelancee.delivery.ui.current_order.createTime
 import com.alexey_freelancee.delivery.utils.SharedPrefsUtil
-import com.alexey_freelancee.delivery.utils.SingleShotLocationProvider
 import com.alexey_freelancee.delivery.utils.isOnline
 import com.alexey_freelancee.delivery.utils.log
 import com.google.android.gms.maps.model.LatLng
@@ -25,9 +18,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.NullPointerException
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -52,15 +43,7 @@ class Repository(
 
     fun setUserId(uid: String) = prefs.setUserId(uid)
 
-    suspend fun loadCurrentDestination(context:Context):LatLng{
-        return suspendCoroutine {continuation->
-            SingleShotLocationProvider.requestSingleUpdate(context
-            ) {
-                continuation.resume(LatLng(it.latitude.toDouble(),it.longitude.toDouble()))
 
-            }
-        }
-    }
     suspend fun createManagerOrder(order: ManagerOrder):String{
         return suspendCoroutine { continuation ->
             FirebaseDatabase.getInstance()

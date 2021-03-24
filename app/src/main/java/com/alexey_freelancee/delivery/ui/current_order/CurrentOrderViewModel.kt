@@ -10,7 +10,6 @@ import com.alexey_freelancee.delivery.data.models.Order
 import com.alexey_freelancee.delivery.utils.Event
 import com.alexey_freelancee.delivery.utils.SortPlaces
 import com.alexey_freelancee.delivery.utils.isOnline
-import com.alexey_freelancee.delivery.utils.log
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
@@ -28,7 +27,7 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
     val subOrders = MutableLiveData<List<Order>>()
     val dataLoading = MutableLiveData<Boolean>()
     val toast = MutableLiveData<Event<String>>()
-    private var currentDestination : LatLng? = null
+
      var map:GoogleMap? = null
 
     private val storageCoordinates = hashMapOf(
@@ -58,37 +57,19 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
             val subOrdersNew = loadSubOrders(managerOrder.subOrders)
             subOrders.postValue(subOrdersNew)
             if(!displayOrderInfo){
-                loadMap(subOrdersNew)
-            }else{
-                dataLoading.postValue(false)
+                if(isOnline()){
+                    drawPolyline(loadDestinations(subOrdersNew))
+                }
             }
+            dataLoading.postValue(false)
         } else{
             dataLoading.postValue(false)
         }
     }
 
-    private suspend fun loadMap(subOrdersNew:List<Order>){
-        if(isOnline()){
-            log("loading current destination")
-            val location = repository.loadCurrentDestination(context)
-            if(location.latitude == 0.0 && location.longitude == 0.0){
-                toast.postValue(Event("Пожалуйста, включите GPS"))
-                dataLoading.postValue(false)
-                return
-            } else{
-                currentDestination = location
-                val sortedDestinationsNew = loadSortedDestinations(subOrdersNew)
-                log("drawing route")
-                drawPolyline(sortedDestinationsNew)
-            }
 
-        }
-        dataLoading.postValue(false)
-    }
+
     private suspend fun drawPolyline(destinations:List<LatLng>){
-        val currentPolyline = getPolyline(currentDestination!!, destinations[0])
-        map?.addMarker(MarkerOptions().position(currentDestination!!))
-        map?.addPolyline(currentPolyline)
         for ((i, item) in destinations.withIndex()) {
             map?.addMarker(MarkerOptions().position(item))
             try {
@@ -98,15 +79,14 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
 
             }
         }
-        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentDestination, 10f))
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(destinations.first(), 10f))
     }
 
 
-    private suspend fun loadSortedDestinations(orders: List<Order>): List<LatLng> =
+    private suspend fun loadDestinations(orders: List<Order>): List<LatLng> =
         withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
             val destinations = ArrayList<LatLng>()
             orders.forEach {
-
                 if (storageCoordinates[it.storageAddress] != null) {
                     val lat =  storageCoordinates[it.storageAddress]!!.split(",")[0].toDouble()
                     val lon =  storageCoordinates[it.storageAddress]!!.split(",")[1].toDouble()
@@ -114,12 +94,8 @@ class CurrentOrderViewModel(private val repository: Repository, private val cont
                     if(destinations.find { it.latitude == lat && it.longitude == lon } == null){
                         destinations.add(location)
                     }
-
                 }
-
             }
-
-            Collections.sort(destinations, SortPlaces(currentDestination))
             destinations
         }
 
