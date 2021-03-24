@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -12,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.alexey_freelancee.delivery.R
 import com.alexey_freelancee.delivery.databinding.ManagerCreateOrderFragmentBinding
 import com.alexey_freelancee.delivery.ui.MainActivity
+import com.alexey_freelancee.delivery.utils.log
 import com.alexey_freelancee.delivery.utils.toast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -19,8 +19,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ManagerCreateOrderFragment : Fragment() {
 
 
-
-    private  val viewModel by viewModel<ManagerCreateOrderViewModel>()
+    private val viewModel by viewModel<ManagerCreateOrderViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,17 +31,18 @@ class ManagerCreateOrderFragment : Fragment() {
         }.root
     }
 
-    private fun setupSubOrders(view:View){
+    private fun setupSubOrders(view: View) {
         val adapter = AvailableOrdersListAdapter()
         view.findViewById<RecyclerView>(R.id.pickedOrders).adapter = adapter
-        viewModel.subOrdersFull.observe(viewLifecycleOwner,{
+        viewModel.subOrdersFull.observe(viewLifecycleOwner, {
             adapter.updateList(it)
         })
     }
-    private fun setupAvailableOrders(view: View){
-        viewModel.availableOrders.observe(viewLifecycleOwner,{
+
+    private fun setupAvailableOrders(view: View) {
+        viewModel.availableOrders.observe(viewLifecycleOwner, {
             val availableOrders = view.findViewById<Spinner>(R.id.availableOrders)
-            val adapter = AvailableOrdersAdapter(requireContext(),it,viewModel)
+            val adapter = AvailableOrdersAdapter(requireContext(), it, viewModel)
             availableOrders.adapter = adapter
         })
     }
@@ -51,7 +51,10 @@ class ManagerCreateOrderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as MainActivity).supportActionBar?.show()
         (requireActivity() as MainActivity).supportActionBar?.title = "Создание заказа"
-        viewModel.loadAvailableOrders(requireArguments().getString("estimatedTime")!!, requireArguments().getString("estimatedTimeText")!!)
+        viewModel.loadAvailableOrders(
+            requireArguments().getString("estimatedTime")!!,
+            requireArguments().getString("estimatedTimeText")!!
+        )
         viewModel.toast.observe(viewLifecycleOwner, {
             requireContext().toast(it.peekContent())
         })
@@ -62,11 +65,16 @@ class ManagerCreateOrderFragment : Fragment() {
         })
 
         viewModel.createOrder.observe(viewLifecycleOwner, {
-            if (it.peekContent()) {
-                findNavController().navigate(R.id.action_managerCreateOrderFragment_to_mainScreenFragment)
-            } else {
-                requireContext().toast("Ошибка")
+            if (!it.hasBeenHandled) {
+                log("create order")
+                val result = it.peekContent()
+                if (result == "ok") {
+                    findNavController().navigate(R.id.action_managerCreateOrderFragment_to_mainScreenFragment)
+                } else {
+                    requireContext().toast(result)
+                }
             }
+
         })
     }
 

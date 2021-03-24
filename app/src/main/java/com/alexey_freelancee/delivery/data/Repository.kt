@@ -47,18 +47,27 @@ class Repository(
     fun setUserId(uid: String) = prefs.setUserId(uid)
 
 
-    suspend fun createManagerOrder(order: ManagerOrder):Boolean{
+    suspend fun createManagerOrder(order: ManagerOrder):String{
         return suspendCoroutine { continuation ->
             FirebaseDatabase.getInstance()
                 .getReference("manager_orders")
                 .child(order.createTime.toString())
                 .setValue(order)
+                .addOnSuccessListener {
+                    continuation.resume("ok")
+                }
+                .addOnFailureListener{
+                    continuation.resume(it.message ?: "Ошибка")
+                }
+                .addOnFailureListener {
+                    it.printStackTrace()
+                    continuation.resume(it.message ?: "Ошибка")
+                }
+                .addOnCanceledListener {
+                    continuation.resume("Нет подключения к интернету")
+                }
                 .addOnCompleteListener {
-                    if(it.isSuccessful){
-                        continuation.resume(true)
-                    }else{
-                        continuation.resume(false)
-                    }
+                    if(!it.isSuccessful) continuation.resume("Ошибка")
                 }
         }
     }

@@ -6,10 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.alexey_freelancee.delivery.data.Repository
 import com.alexey_freelancee.delivery.data.models.ManagerOrder
 import com.alexey_freelancee.delivery.data.models.Order
-import com.alexey_freelancee.delivery.utils.Event
-import com.alexey_freelancee.delivery.utils.STATUS_COMPLETED
-import com.alexey_freelancee.delivery.utils.STATUS_PACKED
-import com.alexey_freelancee.delivery.utils.isOnline
+import com.alexey_freelancee.delivery.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,21 +21,29 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
     val availableOrders = MutableLiveData<List<Order>>()
     val weight = MutableLiveData<Double>()
 
-    val createOrder = MutableLiveData<Event<Boolean>>()
+    val createOrder = MutableLiveData<Event<String>>()
     val toast = MutableLiveData<Event<String>>()
 
 
     fun createOrder(view: View) {
         CoroutineScope(Dispatchers.IO).launch {
             if (checkInput()) {
-                val order = ManagerOrder(
-                    status = STATUS_PACKED,
-                    weight = weight.value!!,
-                    createTime = System.currentTimeMillis(),
-                    estimateTime = estimateTime.value!!,
-                    subOrders = subOrders.value!!
-                )
-               createOrder.postValue(Event(repository.createManagerOrder(order)))
+                if(isOnline()){
+                    val order = ManagerOrder(
+                        status = STATUS_PACKED,
+                        weight = weight.value!!,
+                        createTime = System.currentTimeMillis(),
+                        estimateTime = estimateTime.value!!,
+                        subOrders = subOrders.value!!
+                    )
+                    log("creating order")
+                    val result = repository.createManagerOrder(order)
+                    log("posted value")
+                    createOrder.postValue(Event(result))
+                }else{
+                    createOrder.postValue(Event("Нет подключения к интернету"))
+                }
+
             }
         }
 
