@@ -53,11 +53,12 @@ class Repository(
                 .getReference("manager_orders")
                 .child(order.createTime.toString())
                 .setValue(order)
-                .addOnSuccessListener {
-                    continuation.resume(true)
-                }
-                .addOnFailureListener{
-                    continuation.resume(false)
+                .addOnCompleteListener {
+                    if(it.isSuccessful){
+                        continuation.resume(true)
+                    }else{
+                        continuation.resume(false)
+                    }
                 }
         }
     }
@@ -91,31 +92,30 @@ class Repository(
                             continuation.resume("ok")
                         }
                         .addOnFailureListener {
-
                             continuation.resume(it.message.toString())
                         }
 
                 }
                 .addOnFailureListener {
-
                     continuation.resume(it.message.toString())
+                    it.printStackTrace()
                 }
         }
     }
 
     suspend fun doLogin(uid: String?, email: String?, pass: String?): Boolean {
         return suspendCoroutine { continuation ->
-            if (uid == null || email.isNullOrBlank() || pass.isNullOrBlank()) continuation.resume(
-                false
-            )
+            if (uid == null || email.isNullOrBlank() || pass.isNullOrBlank()) {
+                continuation.resume(false)
+            }
             FirebaseAuth
                 .getInstance()
-                .signInWithEmailAndPassword(email, pass)
+                .signInWithEmailAndPassword(email!!, pass!!)
                 .addOnSuccessListener {
                     continuation.resume(true)
                 }
                 .addOnFailureListener {
-                    log(it.message)
+                    it.printStackTrace()
                     continuation.resume(false)
                 }
         }

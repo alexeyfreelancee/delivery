@@ -42,10 +42,6 @@ class MainScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
-
-
         (requireActivity() as MainActivity).supportActionBar?.show()
         (requireActivity() as MainActivity).supportActionBar?.elevation = 0f
         (requireActivity() as MainActivity).supportActionBar?.title = "Заказы"
@@ -60,7 +56,10 @@ class MainScreenFragment : Fragment() {
         }
 
         viewModel.toast.observe(viewLifecycleOwner, {
-            requireContext().toast(it.peekContent())
+            if(!it.hasBeenHandled){
+                requireContext().toast(it.peekContent())
+            }
+
         })
         viewModel.createManagerOrder.observe(viewLifecycleOwner, {
             if (!it.hasBeenHandled) {

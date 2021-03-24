@@ -30,7 +30,7 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
 
     fun createOrder(view: View) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (checkInput() && isOnline()) {
+            if (checkInput()) {
                 val order = ManagerOrder(
                     status = STATUS_PACKED,
                     weight = weight.value!!,
@@ -46,7 +46,7 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
 
     private fun checkInput(): Boolean {
         if (subOrders.value.isNullOrEmpty()) {
-            toast.value = Event("Выберите хотя бы один заказ")
+            toast.postValue(Event("Выберите хотя бы один заказ"))
             return false
         }
 
@@ -56,16 +56,19 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
     fun addSubOrder(order: Order) {
         CoroutineScope(Dispatchers.IO).launch {
             val subOrdersTemp = ArrayList(subOrders.value ?: emptyList())
+
             val subOrdersFullTemp = ArrayList(subOrdersFull.value ?: emptyList())
+            if(subOrdersFullTemp.find { it.createTime == order.createTime } == null){
+                subOrdersFullTemp.add(order)
+                subOrdersTemp.add(order.createTime)
 
-            subOrdersFullTemp.add(order)
-            subOrdersTemp.add(order.createTime)
+                val weight = DecimalFormat("##.##").format(subOrdersFullTemp.sumOf { it.weight }).toDouble()
+                this@ManagerCreateOrderViewModel.weight.postValue(weight)
 
-            val weight = DecimalFormat("##.##").format(subOrdersFullTemp.sumOf { it.weight }).toDouble()
-            this@ManagerCreateOrderViewModel.weight.postValue(weight)
+                subOrders.postValue(subOrdersTemp)
+                subOrdersFull.postValue(subOrdersFullTemp)
+            }
 
-            subOrders.postValue(subOrdersTemp)
-            subOrdersFull.postValue(subOrdersFullTemp)
         }
     }
 
@@ -75,11 +78,16 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
             this@ManagerCreateOrderViewModel.estimateTime.postValue(estimateTime.toLong())
             this@ManagerCreateOrderViewModel.estimateTextTime.postValue(estimateTextTime)
 
-            val availableOrders = repository
+            val managedIds = HashSet<Long>()
+            repository.loadManagerOrders().forEach { managedIds.addAll(it.subOrders) }
+            val resultList = ArrayList<Order>()
+            repository
                 .loadOrders()
-                .filter { it.status != STATUS_COMPLETED && it.estimateTime <= estimateTime.toLong() }
-                .sortedByDescending { it.createTime }
-            this@ManagerCreateOrderViewModel.availableOrders.postValue(availableOrders)
+                .filter { it.status != STATUS_COMPLETED && it.estimateTime <=  estimateTime.toLong() }
+                .sortedBy { it.estimateTime }
+                .forEach { if(!managedIds.contains(it.createTime)) resultList.add(it)}
+
+            this@ManagerCreateOrderViewModel.availableOrders.postValue(resultList)
 
 
         }

@@ -30,10 +30,12 @@ class LoginViewModel(
                     if(repository.doLogin(user.uid, email.value, pass.value)){
                         repository.setUserId(user.uid)
                         successLogin.postValue(Event(true))
+                        return@launch
                     }
                 }
             }
-            successLogin.postValue(Event(true))
+            successLogin.postValue(Event(false))
+
         }
     }
 }

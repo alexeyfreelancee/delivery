@@ -63,10 +63,10 @@ class CustomerCreateOrderViewModel(private val repository: Repository) : ViewMod
                 myCalendar.set(Calendar.MONTH, month);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 val sdf = SimpleDateFormat("dd.MM HH:ss", Locale.getDefault())
-                arriveTime.value = myCalendar.time.time
+                arriveTime.postValue(myCalendar.time.time)
 
 
-                dateText.value = sdf.format(myCalendar.time)
+                dateText.postValue(sdf.format(myCalendar.time))
             },
             myCalendar.get(Calendar.YEAR),
             myCalendar.get(Calendar.MONTH),
