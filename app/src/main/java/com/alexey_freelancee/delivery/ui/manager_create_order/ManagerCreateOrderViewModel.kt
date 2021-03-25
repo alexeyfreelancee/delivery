@@ -12,6 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.util.*
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 class ManagerCreateOrderViewModel(private val repository: Repository) : ViewModel() {
     val time = MutableLiveData<Long>()
@@ -27,24 +29,29 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
 
     fun createOrder(view: View) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (checkInput()) {
-                if(isOnline()){
-                    val order = ManagerOrder(
-                        status = STATUS_PACKED,
-                        weight = weight.value!!,
-                        createTime = System.currentTimeMillis(),
-                        estimateTime = time.value!!,
-                        subOrders = subOrders.value!!
-                    )
-                    log("creating order")
-                    val result = repository.createManagerOrder(order)
-                    log("posted value")
-                    createOrder.postValue(Event(result))
-                }else{
-                    createOrder.postValue(Event("Нет подключения к интернету"))
-                }
+            try {
+                if (checkInput()) {
+                    if(isOnline()){
+                        val order = ManagerOrder(
+                            status = STATUS_PACKED,
+                            weight = weight.value ?: 0.0,
+                            createTime = System.currentTimeMillis(),
+                            estimateTime = time.value ?: 0,
+                            subOrders = subOrders.value ?: emptyList()
+                        )
+                        log("creating order")
+                        val result = repository.createManagerOrder(order)
+                        log("posted value")
+                        createOrder.postValue(Event(result))
+                    }else{
+                        createOrder.postValue(Event("Нет подключения к интернету"))
+                    }
 
+                }
+            }catch (ex:Exception){
+                createOrder.postValue(Event(ex.message ?: "Ошибка"))
             }
+
         }
 
     }
@@ -60,19 +67,26 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
 
     fun addSubOrder(order: Order) {
         CoroutineScope(Dispatchers.IO).launch {
-            val subOrdersTemp = ArrayList(subOrders.value ?: emptyList())
+            try {
+                val subOrdersTemp = ArrayList(subOrders.value ?: emptyList())
 
-            val subOrdersFullTemp = ArrayList(subOrdersFull.value ?: emptyList())
-            if(subOrdersFullTemp.find { it.createTime == order.createTime } == null){
-                subOrdersFullTemp.add(order)
-                subOrdersTemp.add(order.createTime)
+                val subOrdersFullTemp = ArrayList(subOrdersFull.value ?: emptyList())
+                if(subOrdersFullTemp.find { it.createTime == order.createTime } == null){
+                    subOrdersFullTemp.add(order)
+                    subOrdersTemp.add(order.createTime)
 
-                val weight = DecimalFormat("##.##").format(subOrdersFullTemp.sumOf { it.weight }).toDouble()
-                this@ManagerCreateOrderViewModel.weight.postValue(weight)
+                    val weightSum = subOrdersFullTemp.sumOf { it.weight }
+                    val roundedWeightSum = (weightSum * 100.0).roundToInt() / 100.0
+                    this@ManagerCreateOrderViewModel.weight.postValue(roundedWeightSum)
 
-                subOrders.postValue(subOrdersTemp)
-                subOrdersFull.postValue(subOrdersFullTemp)
+
+                    subOrders.postValue(subOrdersTemp)
+                    subOrdersFull.postValue(subOrdersFullTemp)
+                }
+            }catch (ex:java.lang.Exception){
+                toast.postValue(Event(ex.message ?: "Ошибка"))
             }
+
 
         }
     }
@@ -86,9 +100,20 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
             val managedIds = HashSet<Long>()
             repository.loadManagerOrders().forEach { managedIds.addAll(it.subOrders) }
             val resultList = ArrayList<Order>()
+
+
             repository
                 .loadOrders()
-                .filter { it.status != STATUS_COMPLETED && it.estimateTime >=  estimateTime.toLong() }
+                .filter {
+                    val orderDate = Calendar.getInstance().apply {
+                        time = Date(it.estimateTime)
+                    }
+                    val pickedDate = Calendar.getInstance().apply {
+                        time = Date(estimateTime.toLong() - 1000 * 60 * 60 * 12)
+                    }
+
+                    it.status != STATUS_COMPLETED && pickedDate <= orderDate
+                }
                 .sortedBy { it.estimateTime }
                 .forEach { if(!managedIds.contains(it.createTime)) resultList.add(it)}
 

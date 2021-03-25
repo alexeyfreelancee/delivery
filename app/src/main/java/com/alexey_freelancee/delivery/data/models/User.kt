@@ -11,5 +11,6 @@ data class User(
     val type: String = "",
     val email: String = "",
     val phoneNumber: String = "",
-    val fullName: String = ""
+    val fullName: String = "",
+    val jnk :String = ""
 )

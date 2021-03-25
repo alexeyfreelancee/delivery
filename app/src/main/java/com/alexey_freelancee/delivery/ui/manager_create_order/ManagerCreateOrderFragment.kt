@@ -51,10 +51,16 @@ class ManagerCreateOrderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as MainActivity).supportActionBar?.show()
         (requireActivity() as MainActivity).supportActionBar?.title = "Создание заказа"
-        viewModel.loadAvailableOrders(
-            requireArguments().getString("estimatedTime")!!,
-            requireArguments().getString("estimatedTimeText")!!
-        )
+
+        val estimatedTime =  requireArguments().getString("estimatedTime")
+        val estimatedTimeText = requireArguments().getString("estimatedTimeText")
+        if(estimatedTime.isNullOrEmpty() or estimatedTimeText.isNullOrEmpty()){
+            requireContext().toast("Выберите дату")
+            findNavController().navigate(R.id.action_managerCreateOrderFragment_to_mainScreenFragment)
+        } else{
+            viewModel.loadAvailableOrders(estimatedTime!!,estimatedTimeText!!)
+        }
+
         viewModel.toast.observe(viewLifecycleOwner, {
             if(!it.hasBeenHandled){
                 requireContext().toast(it.peekContent())

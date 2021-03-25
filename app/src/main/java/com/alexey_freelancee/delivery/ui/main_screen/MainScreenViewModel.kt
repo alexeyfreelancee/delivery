@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashSet
+import kotlin.math.abs
 
 class MainScreenViewModel(
     private val repository: Repository
@@ -120,7 +121,16 @@ class MainScreenViewModel(
                     val resultList = ArrayList<Order>()
                     repository
                         .loadOrders()
-                        .filter { it.status != STATUS_COMPLETED && it.estimateTime >=  myCalendar.time.time.toLong() }
+                        .filter {
+                            val orderDate = Calendar.getInstance().apply {
+                                time = Date(it.estimateTime)
+                            }
+                            val pickedDate = Calendar.getInstance().apply {
+                                time = Date(myCalendar.time.time - 1000 * 60 * 60 * 12)
+                            }
+
+                            it.status != STATUS_COMPLETED && pickedDate <= orderDate
+                        }
                         .sortedBy { it.estimateTime }
                         .forEach { if(!managedIds.contains(it.createTime)) resultList.add(it)}
 

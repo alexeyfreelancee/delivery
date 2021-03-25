@@ -14,5 +14,6 @@ data class Order(
     var status:String= "",
     val comment:String= "",
     @PrimaryKey
-    val createTime:Long = 0
+    val createTime:Long = 0,
+    val jnk:String = ""
 )
