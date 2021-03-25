@@ -120,7 +120,7 @@ class MainScreenViewModel(
                     val resultList = ArrayList<Order>()
                     repository
                         .loadOrders()
-                        .filter { it.status != STATUS_COMPLETED && it.estimateTime <=  myCalendar.time.time.toLong() }
+                        .filter { it.status != STATUS_COMPLETED && it.estimateTime >=  myCalendar.time.time.toLong() }
                         .sortedBy { it.estimateTime }
                         .forEach { if(!managedIds.contains(it.createTime)) resultList.add(it)}
 

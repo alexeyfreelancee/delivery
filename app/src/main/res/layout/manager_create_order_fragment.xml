@@ -23,7 +23,7 @@
 
 
                 <FrameLayout
-                    android:visibility="@{viewmodel.estimateTime == null || viewmodel.estimateTime == 0.0 ? View.GONE: View.VISIBLE}"
+                    android:visibility="@{viewmodel.time == null || viewmodel.time == 0.0 ? View.GONE: View.VISIBLE}"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:layout_marginTop="8dp"
@@ -45,7 +45,7 @@
 
 
                 <LinearLayout
-                    android:visibility="@{viewmodel.estimateTime == null || viewmodel.estimateTime == 0.0 ? View.GONE: View.VISIBLE}"
+                    android:visibility="@{viewmodel.time == null || viewmodel.time == 0.0 ? View.GONE: View.VISIBLE}"
                     android:background="@color/darkGreen"
                     android:layout_marginTop="16dp"
                     android:layout_width="match_parent"
@@ -102,7 +102,7 @@
             </FrameLayout>
 
             <FrameLayout
-                android:visibility="@{viewmodel.estimateTime == null || viewmodel.estimateTime == 0.0 ? View.GONE: View.VISIBLE}"
+                android:visibility="@{viewmodel.time == null || viewmodel.time == 0.0 ? View.GONE: View.VISIBLE}"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@color/darkGreen"
@@ -112,7 +112,7 @@
                 <TextView
                     tools:text="Test text"
                     android:layout_gravity="center_vertical"
-                    android:text="@{viewmodel.estimateTextTime}"
+                    android:text="@{viewmodel.testTime}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"

@@ -14,8 +14,8 @@ import java.text.DecimalFormat
 import java.util.*
 
 class ManagerCreateOrderViewModel(private val repository: Repository) : ViewModel() {
-    val estimateTime = MutableLiveData<Long>()
-    val estimateTextTime = MutableLiveData<String>()
+    val time = MutableLiveData<Long>()
+    val testTime = MutableLiveData<String>()
     val subOrders = MutableLiveData<List<Long>>()
     val subOrdersFull = MutableLiveData<List<Order>>()
     val availableOrders = MutableLiveData<List<Order>>()
@@ -33,7 +33,7 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
                         status = STATUS_PACKED,
                         weight = weight.value!!,
                         createTime = System.currentTimeMillis(),
-                        estimateTime = estimateTime.value!!,
+                        estimateTime = time.value!!,
                         subOrders = subOrders.value!!
                     )
                     log("creating order")
@@ -80,15 +80,15 @@ class ManagerCreateOrderViewModel(private val repository: Repository) : ViewMode
 
     fun loadAvailableOrders(estimateTime: String, estimateTextTime: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            this@ManagerCreateOrderViewModel.estimateTime.postValue(estimateTime.toLong())
-            this@ManagerCreateOrderViewModel.estimateTextTime.postValue(estimateTextTime)
+            this@ManagerCreateOrderViewModel.time.postValue(estimateTime.toLong())
+            this@ManagerCreateOrderViewModel.testTime.postValue(estimateTextTime)
 
             val managedIds = HashSet<Long>()
             repository.loadManagerOrders().forEach { managedIds.addAll(it.subOrders) }
             val resultList = ArrayList<Order>()
             repository
                 .loadOrders()
-                .filter { it.status != STATUS_COMPLETED && it.estimateTime <=  estimateTime.toLong() }
+                .filter { it.status != STATUS_COMPLETED && it.estimateTime >=  estimateTime.toLong() }
                 .sortedBy { it.estimateTime }
                 .forEach { if(!managedIds.contains(it.createTime)) resultList.add(it)}
 
