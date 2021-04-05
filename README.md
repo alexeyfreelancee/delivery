@@ -1,6 +1,8 @@
-Technologies - Kotlin + ModelViewViewModel + FirebaseDatabase
+Technologies
+Kotlin + ModelViewViewModel + FirebaseDatabase
 
-The app has three types of users: Supplier, Customer and Manager
+The app has three types of users
+Supplier, Customer and Manager
 
 Customer can create orders and list history
 Manager makes sub orders from orders and send them to the supplier
