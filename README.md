@@ -1,5 +1,5 @@
-Technologies
-Kotlin + ModelViewViewModel + FirebaseDatabase
+Technologies:
+Kotlin + MVVM Architecture + Firebase DB
 
 The app has three types of users
 Supplier, Customer and Manager
